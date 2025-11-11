@@ -22,12 +22,21 @@ import { EventRsvpsModule } from './modules/event-rsvps/event-rsvps.module';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        url: config.get<string>('DATABASE_URL'),
-        autoLoadEntities: true,
-        synchronize: config.get('NODE_ENV') !== 'production',
-      }),
+      useFactory: (config: ConfigService) => {
+        const databaseUrl = config.get<string>('DATABASE_URL');
+        if (!databaseUrl) {
+          throw new Error('DATABASE_URL is not defined');
+        }
+        const isProduction = config.get('NODE_ENV') === 'production';
+
+        return {
+          type: 'postgres',
+          url: databaseUrl,
+          autoLoadEntities: true,
+          synchronize: !isProduction,
+          ssl: isProduction ? { rejectUnauthorized: false } : undefined,
+        };
+      },
       inject: [ConfigService],
     }),
     PageSectionsModule,

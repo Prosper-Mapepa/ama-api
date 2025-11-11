@@ -16,18 +16,24 @@ pnpm run seed
 
 # start the API in watch mode
 pnpm run start:dev
+
+# or compile + run from dist/
+pnpm run build
+pnpm run start
 ```
 
 The server listens on `http://localhost:4000/api` by default. Configure with environment variables (see below).
 
 ### 2. Environment Variables
 
-Create a `.env` file in `backend/` with the following variables:
+Copy `.env.example` to `.env` and adjust the values for your environment. At minimum you need:
 
 ```
 PORT=4000
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/ama_cmu
 FRONTEND_URL=http://localhost:3000
+API_BASE_URL=http://localhost:4000/api
+MEDIA_BASE_URL=http://localhost:4000/uploads
 JWT_SECRET=super-secret-development-key
 JWT_EXPIRES_IN=1d
 ADMIN_EMAIL=admin@ama-cmu.org
@@ -51,9 +57,9 @@ The project uses TypeORM with auto-loading entities. Tables are generated automa
 | Command               | Description                                      |
 | --------------------- | ------------------------------------------------ |
 | `pnpm run start:dev`  | Start the API with hot reloading                 |
-| `pnpm run start`      | Start without file watching                      |
+| `pnpm run start`      | Run the compiled application from `dist/`        |
 | `pnpm run build`      | Compile TypeScript to JavaScript                 |
-| `pnpm run start:prod` | Run the compiled application from `dist/`        |
+| `pnpm run start:prod` | Alias for `pnpm run start`                       |
 | `pnpm run lint`       | Run ESLint                                       |
 | `pnpm run test`       | Unit tests (Jest)                                |
 | `pnpm run test:e2e`   | End-to-end tests (Supertest)                     |
@@ -110,7 +116,22 @@ Each module contains:
 - Provide production-ready values for `DATABASE_URL`, `PORT`, and `FRONTEND_URL`.
 - Replace the seeded admin credentials and `JWT_SECRET` with secure values before launch.
 
-### 9. Troubleshooting
+### 9. Deploying on Railway
+
+1. Create a new Railway project and provision a PostgreSQL database.
+2. Set the following environment variables inside Railway:
+   - `NODE_ENV=production`
+   - `DATABASE_URL` (use the connection string provided by Railway)
+   - `PORT` (Railway will inject this automatically, no manual change required)
+   - `FRONTEND_URL` (comma-separated list of allowed origins)
+   - `API_BASE_URL` (e.g. `https://your-domain.up.railway.app/api`)
+   - `MEDIA_BASE_URL` (optional; defaults to `API_BASE_URL`)
+   - `JWT_SECRET`, `JWT_EXPIRES_IN`
+   - `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME` (optional seed overrides)
+3. Deploy the GitHub repo or push directly to Railway. The `postinstall` script builds the project, and `pnpm start` (or `npm start`) launches the compiled server.
+4. Enable persistent storage or an external object store if you plan to keep uploaded media across deploys—the default Railway filesystem is ephemeral.
+
+### 10. Troubleshooting
 
 - **CORS errors** – Check `FRONTEND_URL` and ensure it includes the deployed domain(s).
 - **Database connection failures** – Validate the `DATABASE_URL` and Postgres availability.
