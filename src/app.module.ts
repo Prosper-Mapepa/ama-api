@@ -28,12 +28,14 @@ import { EventRsvpsModule } from './modules/event-rsvps/event-rsvps.module';
           throw new Error('DATABASE_URL is not defined');
         }
         const isProduction = config.get('NODE_ENV') === 'production';
+        const shouldSynchronize =
+          config.get<string>('DB_SYNCHRONIZE') === 'true' || !isProduction;
 
         return {
           type: 'postgres',
           url: databaseUrl,
           autoLoadEntities: true,
-          synchronize: !isProduction,
+          synchronize: shouldSynchronize,
           ssl: isProduction ? { rejectUnauthorized: false } : undefined,
         };
       },
