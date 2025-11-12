@@ -137,6 +137,12 @@ Each module contains:
 - **Database connection failures** – Validate the `DATABASE_URL` and Postgres availability.
 - **Validation errors** – API returns descriptive messages; ensure admin form payloads align with DTO shapes.
 
+### 11. API Documentation
+
+- Swagger UI is available at `/api/docs` once the server is running (e.g. `http://localhost:4000/api/docs` in development, or `https://<your-domain>/api/docs` in production).
+- JWT-protected routes use the built-in **Authorize** button; paste the `Bearer <token>` value obtained from the auth endpoints.
+- The OpenAPI JSON spec can be downloaded from `/api/docs-json`.
+
 ---
 
 For questions about the backend or to propose improvements, feel free to open an issue or start a discussion in the main repository.
